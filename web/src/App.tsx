@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import GameList from './interfaces/GameList'
 import * as Dialog from '@radix-ui/react-dialog'
 import { CreateAdModal } from './components/CreateAdModal'
+import axios from 'axios'
 
 
 function App() {
@@ -13,7 +14,7 @@ function App() {
   const [games, setGames] = useState<GameList[]>([])
 
   useEffect(() => {
-    fetch('http://localhost:3333/games').then(response => response.json()).then(data => setGames(data))
+    axios('http://localhost:3333/games').then(response => setGames(response.data))
   }, [])
 
   console.log(games)
@@ -28,6 +29,7 @@ function App() {
       <div className='grid grid-cols-6 gap-6 mt-16'>
         {games.map(game => (
           <GameBanner
+            id={game.id}
             key={game.id}
             title={game.title}
             bannerUrl={game.bannerUrl}
