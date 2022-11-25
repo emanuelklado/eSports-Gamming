@@ -1,5 +1,5 @@
 import express from 'express';
-import {Request, Response} from 'express';
+import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import convertHourToMinutes from './utils/convertHourToMinutes';
 import convertMinutesToHour from './utils/convertMinutesToHour';
@@ -14,8 +14,8 @@ const prisma = new PrismaClient({
     log: ['query', 'info', 'warn'],
 });
 
-app.get('/games', async (request:Request, response:Response) => {
-    const games = await  prisma.game.findMany({
+app.get('/games', async (request: Request, response: Response) => {
+    const games = await prisma.game.findMany({
         include: {
             _count: {
                 select: {
@@ -26,8 +26,26 @@ app.get('/games', async (request:Request, response:Response) => {
     })
     return response.status(200).json(games);
 });
+// rota para retornar games por id;
+app.get('/games/:id', async (request: Request, response: Response) => {
+    const { id } = request.params;
+    const game = await prisma.game.findUnique({
+        where: {
+            id: id,
+        },
+        include: {
+            _count: {
+                select: {
+                    ads: true,
+                }
+            }
+        }
+    })
+    return response.status(200).json(game);
+});
 
-app.post('/games/:id/ads', async (request:Request, response:Response) => {
+
+app.post('/games/:id/ads', async (request: Request, response: Response) => {
     const gameId = request.params.id;
     const body: any = request.body;
     const adCreated = await prisma.ad.create({
@@ -37,15 +55,15 @@ app.post('/games/:id/ads', async (request:Request, response:Response) => {
             yearsPlaying: body.yearsPlaying,
             discord: body.discord,
             weekDays: body.weekDays.join(','),
-            hourStart: convertHourToMinutes(body.hourStart) ,
+            hourStart: convertHourToMinutes(body.hourStart),
             hourEnd: convertHourToMinutes(body.hourEnd),
             useVoiceChannel: body.useVoiceChannel,
         }
-});
+    });
     return response.status(201).json(adCreated);
 });
 
-app.get('/games/:id/ads', async (request:Request, response:Response) => {
+app.get('/games/:id/ads', async (request: Request, response: Response) => {
     const { id: gameId } = request.params;
     const ads = await prisma.ad.findMany({
         select: {
@@ -76,7 +94,7 @@ app.get('/games/:id/ads', async (request:Request, response:Response) => {
     return response.json(adsFormated);
 });
 
-app.get('/ads/:id/discord', async (request:Request, response:Response) => {
+app.get('/ads/:id/discord', async (request: Request, response: Response) => {
     const { id } = request.params;
     const ad = await prisma.ad.findUniqueOrThrow({
         where: {
@@ -85,7 +103,7 @@ app.get('/ads/:id/discord', async (request:Request, response:Response) => {
         select: {
             discord: true,
         },
-        
+
     });
     return response.json(ad);
 });
