@@ -4,6 +4,8 @@ import Input from '../components/form/Input'
 import * as Checkbox from '@radix-ui/react-checkbox'
 import { useEffect, useState } from 'react';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
+import axios from 'axios';
+
 
 interface Game {
     id: string;
@@ -13,12 +15,39 @@ interface Game {
 export function CreateAdModal() {
 
     const [games, setGames] = useState<Game[]>([])
+    const [weekDays, setWeekDays] = useState<string[]>([])
+    const [useVoiceChannel, setUseVoiceChannel] = useState<boolean>(false)
+
 
     useEffect(() => {
-        fetch('http://localhost:3333/games')
-            .then(response => response.json())
-            .then(data => setGames(data))
+        axios('http://localhost:3333/games')
+            .then(response => setGames(response.data))
     }, [])
+
+    async function handleCreateAd(e: React.FormEvent) {
+        e.preventDefault()
+        const formData = new FormData(e.target as HTMLFormElement)
+        const data = Object.fromEntries(formData)
+        console.log(data)
+
+
+        try {
+            await axios.post(`http://localhost:3333/games/${data.game}/ads`, {
+                name: data.nick,
+                yearsPlaying: Number(data.time),
+                discord: data.discord,
+                weekDays: weekDays.map(Number),
+                hourStart: data.hourStart,
+                hourEnd: data.hourEnd,
+                useVoiceChannel: useVoiceChannel
+            })
+            alert('Anúncio criado com sucesso!')
+        } catch (error) {
+            console.log(error);
+            alert('Erro ao criar anúncio!')
+        }
+
+    }
 
     return (
         <Dialog.Portal>
@@ -27,12 +56,13 @@ export function CreateAdModal() {
                 <Dialog.Title className='text-3xl text-white font-black' >Publique um anúncio</Dialog.Title>
 
 
-                <form className='mt-8 flex flex-col gap-4'>
+                <form onSubmit={handleCreateAd} className='mt-8 flex flex-col gap-4'>
                     <div className='flex flex-col gap-2'>
                         <label htmlFor="game" className='font-semibold'>Qual o game?</label>
                         <select
                             defaultValue=""
                             id='game'
+                            name='game'
                             className='py-3 px-4 bg-zinc-900 rounded-md placeholder:text-zinc-500 appearance-none'
                         >
                             <option disabled value="" >Informe o jogo que deseja jogar</option>
@@ -43,17 +73,29 @@ export function CreateAdModal() {
                     </div>
                     <div className='flex flex-col gap-2'>
                         <label htmlFor="nick">Seu nome (ou nickname)</label>
-                        <Input id='nick' type="text" placeholder='como te chamam dentro do game?' />
+                        <Input
+                            id='nick'
+                            name='nick'
+                            type="text"
+                            placeholder='como te chamam dentro do game?' />
                     </div>
 
                     <div className='grid grid-cols-2 gap-6'>
                         <div className='flex flex-col gap-2' >
                             <label htmlFor="time">Joga há quantos anos?</label>
-                            <Input id='time' type="text" placeholder='Tudo bem ser Zero!' />
+                            <Input
+                                id='time'
+                                name='time'
+                                type="text"
+                                placeholder='Tudo bem ser Zero!' />
                         </div>
                         <div className='flex flex-col gap-2'>
                             <label htmlFor="discord">Qual o seu Discord?</label>
-                            <Input id='discord' type="text" placeholder='Usuario#0000' />
+                            <Input
+                                id='discord'
+                                name='discord'
+                                type="text"
+                                placeholder='Usuario#0000' />
                         </div>
                     </div>
 
@@ -63,46 +105,48 @@ export function CreateAdModal() {
                             <div>
                                 <ToggleGroup.Root
                                     type='multiple'
-                                    onValueChange={(value) => console.log(value)}
+                                    className='grid grid-cols-4 gap-2'
+                                    value={weekDays}
+                                    onValueChange={setWeekDays}
                                 >
                                     <ToggleGroup.Item
                                         value='0'
                                         title='domingo'
-                                        className='w-8 h-8 rounded bg-zinc-900'
+                                        className={`w-8 h-8 rounded ${weekDays.includes('0') ? 'bg-violet-500' : 'bg-zinc-900'}`}
                                     >
                                         D
                                     </ToggleGroup.Item>
                                     <ToggleGroup.Item
                                         value='1'
                                         title='segunda'
-                                        className='w-8 h-8'
+                                        className={`w-8 h-8 rounded ${weekDays.includes('1') ? 'bg-violet-500' : 'bg-zinc-900'}`}
                                     >
                                         S
                                     </ToggleGroup.Item>
                                     <ToggleGroup.Item
                                         title='terça'
-                                        className='w-8 h-8'
+                                        className={`w-8 h-8 rounded ${weekDays.includes('2') ? 'bg-violet-500' : 'bg-zinc-900'}`}
                                         value='2'
                                     >
                                         T
                                     </ToggleGroup.Item>
                                     <ToggleGroup.Item
                                         title='quarta'
-                                        className='w-8 h-8'
+                                        className={`w-8 h-8 rounded ${weekDays.includes('3') ? 'bg-violet-500' : 'bg-zinc-900'}`}
                                         value='3'
                                     >
                                         Q
                                     </ToggleGroup.Item>
                                     <ToggleGroup.Item
                                         title='quinta'
-                                        className='w-8 h-8'
+                                        className={`w-8 h-8 rounded ${weekDays.includes('4') ? 'bg-violet-500' : 'bg-zinc-900'}`}
                                         value='4'
                                     >
                                         Q
                                     </ToggleGroup.Item>
                                     <ToggleGroup.Item
                                         title='sexta'
-                                        className='w-8 h-8'
+                                        className={`w-8 h-8 rounded ${weekDays.includes('5') ? 'bg-violet-500' : 'bg-zinc-900'}`}
                                         value='5'
                                     >
                                         S
@@ -110,7 +154,7 @@ export function CreateAdModal() {
                                     <ToggleGroup.Item
                                         value='6'
                                         title='sábado'
-                                        className='w-8 h-8'
+                                        className={`w-8 h-8 rounded  ${weekDays.includes('6') ? 'bg-violet-500' : 'bg-zinc-900'}`}
                                     >
                                         S
                                     </ToggleGroup.Item>
@@ -120,20 +164,33 @@ export function CreateAdModal() {
                         <div className='flex flex-col gap-2 flex-1' >
                             <label htmlFor="hourStart">Qual horário do dia?</label>
                             <div className='grid grid-cols-2 gap-2'>
-                                <Input id='hourStart' type="time" placeholder='de' />
-                                <Input id='hourEnd' type="time" placeholder='até' />
+                                <Input
+                                    id='hourStart'
+                                    name='hourStart'
+                                    type="time"
+                                    placeholder='de' />
+                                <Input
+                                    id='hourEnd'
+                                    name='hourEnd'
+                                    type="time"
+                                    placeholder='até' />
                             </div>
                         </div>
                     </div>
 
-                    <div className='mt-2 flex items-center gap-2 text-sm'>
-                        <Checkbox.Root className='w-6 h-6 rounded border border-zinc-900'>
+                    <label className='mt-2 flex items-center gap-2 text-sm'>
+                        <Checkbox.Root
+                            checked={useVoiceChannel}
+                            onCheckedChange={(checked) => {
+                                checked ? setUseVoiceChannel(true) : setUseVoiceChannel(false)
+                            }}
+                            className='w-6 h-6 rounded border border-zinc-900'>
                             <Checkbox.Indicator>
                                 <Check className='w-4 h-4 text-emerald-400' />
                             </Checkbox.Indicator>
                         </Checkbox.Root>
                         Costumo me conectar ao chat de voz!
-                    </div>
+                    </label>
 
                     <footer className='flex justify-end mt-4 gap-4'>
                         <Dialog.Close
