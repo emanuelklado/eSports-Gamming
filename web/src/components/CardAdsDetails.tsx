@@ -21,14 +21,14 @@ export default function CardAdsDetails(props: any) {
                 {
                     props.ads.map((ad: any) => (
                         <div
-                            className='hover:bg-transparent hover:border-green-800 hover:transition-all bg-gray-600 rounded-md bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100
-                            m-0 border-solid p-3 text-white w-52 max-w-md flex flex-col items-center justify-center '
+                            className=' cursor-pointer hover:bg-transparent hover:border-green-800 hover:transition-all bg-gray-600 rounded-md bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100
+                            mb-10 border-solid p-3 mt-12 text-white w-52 h-[300px] max-w-md flex flex-col items-center justify-evenly '
                             key={ad.id}>
                             <img
-                                className='w-16 rounded-full mx-auto my-auto mt-4 border-4 border-solid border-white'
+                                className='w-[116px] mb-[330px]  absolute top-18 rounded-full mx-auto my-auto mt-4 border-4 border-solid border-white hover:border-green-500'
                                 src={arrayOfAvatars[Math.floor(Math.random() * arrayOfAvatars.length)]}
                             />
-                            <p className='text-2xl m-2 text-neutral-50 font-extrabold'>{ad.name}</p>
+                            <p className='text-2xl m-2 mt-[50px] text-neutral-50 font-extrabold'>{ad.name}</p>
                             <div className='flex gap-1 items-center pb-2 justify-center w-[100%] h-[10%]'>
                                 <BsMicFill className='h-5 w-5' color='#5562EA' />
 
